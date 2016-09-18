@@ -17,7 +17,7 @@ var db = new WyvernDB('database_name');
 
 ######Creating tables
 Tables require the column object to be added as a second parameter. 
-The "unique" field guarantees that the value for that column is unique accross the table
+The "unique" field guarantees that the value of the column is unique accross the table.
 
 ```javascript
 var columns = [
