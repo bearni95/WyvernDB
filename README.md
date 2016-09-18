@@ -10,12 +10,15 @@ The database engine stores it's values in localStorage at any change to keep a l
 <script src="wyvern.js"></script>
 ```
 
-##Creating a database
+######Creating a database
 ```javascript
 var db = new WyvernDB('database_name');
 ```
 
-##Creating tables
+######Creating tables
+Tables require the column object to be added as a second parameter. 
+The "unique" field guarantees that the value for that column is unique accross the table
+
 ```javascript
 var columns = [
   {
@@ -27,4 +30,23 @@ var columns = [
   },
 ]
 db.add_table('table_name', columns);
+```
+######Inserting rows
+```javascript
+var result = db.insert('table_name', {id:3, value:'value3'})
+```
+
+######Updating rows
+```javascript
+var result = db.update('table_name', {id:1, value:'value1_mod'})
+```
+######Selecting rows
+The second parameter must be a valid javascript boolean operation between columns.
+```javascript
+var result = db.select('table1', 'id < 50')
+```
+######Removing rows
+The second parameter must be a valid javascript boolean operation between columns.
+```javascript
+var result = db.remove('table1', 'id === 0')
 ```
