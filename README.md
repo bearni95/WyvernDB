@@ -43,10 +43,10 @@ var result = db.update('table_name', {id:1, value:'value1_mod'})
 ######Selecting rows
 The second parameter must be a valid javascript boolean operation between columns.
 ```javascript
-var result = db.select('table1', 'id < 50')
+var result = db.select('table_name', 'id < 50')
 ```
 ######Removing rows
 The second parameter must be a valid javascript boolean operation between columns.
 ```javascript
-var result = db.remove('table1', 'id === 0')
+var result = db.remove('table_name', 'id === 0')
 ```
