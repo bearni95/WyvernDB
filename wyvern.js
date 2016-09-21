@@ -30,22 +30,28 @@ local_storage = function(database_name, database_object){
 
 
 function WyvernDB (name){
-	var tables = local_storage(name);
-	if (tables){
-		this.name = name;
-		this.tables = tables;
-
-		console.log('Database ' + name + ' imported.')
-	} else {
-		this.name = name;
-		this.tables = {};
-		console.log('Database ' + name + ' created.')
-		local_storage(name, this.tables);
-	}
-
 	var database = this;
 
-	this.add_table = function (name, columns){
+	this.guid = function() {
+		function s4(){
+			return Math.floor((1 + Math.random()) * 0x100000).toString(16).substring(1);
+		}
+		return s4() + s4() + '-' + s4() + s4() + '-' + s4() + s4() + '-' + s4() + s4()
+	}
+
+	this.size = function (){
+		var result = {
+			wyvern_total_count : 0,
+		}
+		for (var table in database.tables){
+			result[table] = JSON.stringify(database.tables[table]).length;
+			result['wyvern_total_count'] += result[table]
+		}
+
+		return result;
+	}
+
+	this.create_table = function (name, columns, options){
 		if (!database.tables){
 			database.tables = {};
 		}
@@ -54,30 +60,30 @@ function WyvernDB (name){
 			return null;
 		}
 
+		if (!options.autoincrement_index){
+			options.autoincrement_index = 0;
+		}
+
 		database.tables[name] = {
 			columns : columns,
 			rows : [],
+			options : options,
 		};
 		console.log('Table ' + name + ' created.');
 		local_storage(database.name, database.tables)
 	}
 
 	this.insert = function (table, rows){
-		var columns = [];
+		var columns = database.tables[table]['columns'];
 		var index_columns = [];
 
 		if (typeof rows != 'array'){
 			rows = [rows]
 		}
 
-		for (var i = 0; i < database.tables[table]['columns'].length; i++){
-			columns.push(database.tables[table]['columns'][i]['name']);
-
-			if (database.tables[table]['columns'][i]['unique']){
-				index_columns.push(database.tables[table]['columns'][i]['name'])
-			}
+		if (database.tables[table]['unique']){
+			index_columns = database.tables[table]['unique']
 		}
-
 		
 		for (var i = 0; i < rows.length; i++){
 			var row = rows[i];
@@ -95,6 +101,26 @@ function WyvernDB (name){
 						}
 					})
 				}
+
+				rows[i]['create_timestamp'] = new Date().getTime();
+				rows[i]['last_modified_timestamp'] = new Date().getTime();
+
+				if (database.tables[table]['options']['guid']){
+					for (var j = 0; j < database.tables[table]['options']['guid'].length; j++){
+						row[database.tables[table]['options']['guid'][j]] = database.guid();
+					}
+				}
+
+				if (database.tables[table]['options']['autoincrement']){
+					for (var j = 0; j < database.tables[table]['options']['autoincrement'].length; j++){
+						row[database.tables[table]['options']['autoincrement'][j]] = database.tables[table]['options']['autoincrement_index'];
+					}
+					
+				}
+			}
+
+			if (database.tables[table]['options']['autoincrement']){
+				database.tables[table]['options']['autoincrement_index']++;
 			}
 		}
 
@@ -104,10 +130,13 @@ function WyvernDB (name){
 	}
 	
 	this.select = function (table, where){
-		var results = database.tables[table].rows.filter(function (row){
+		
+		var results = database.tables[table].rows.filter(function (row){			
 			extract(row, this)
-			if (eval(where)){
-				return row;
+			if (typeof eval(where) === 'boolean'){
+				if (eval(where)){
+					return row;
+				}
 			}
 		})
 
@@ -160,6 +189,7 @@ function WyvernDB (name){
 					}		
 				}
 			}
+			row[i]['last_modified_timestamp'] = new Date().getTime();
 		}
 
 		local_storage(database.name, database.tables);
