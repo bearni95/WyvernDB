@@ -1,4 +1,4 @@
-# WyvernDB
+# WyvernDB :dragon_face:
 ##WyvernDB: Persistent, client side javascript database
 
 WyvernDB is an SQL inspired database that runs on client-side javascript. 
@@ -21,15 +21,24 @@ The "unique" field guarantees that the value of the column is unique accross the
 
 ```javascript
 var columns = [
-  {
-    name : 'id',
-    unique : true,
-  }, 
-  {
-    name : 'value',
-  },
+  'id',
+  'value',
 ]
-db.add_table('table_name', columns);
+
+```
+The options parameter contains the index information and is optional.
+If passed to the table creator function it must contain the *unique* key referencing an array of columns.
+
+If no more options are added the indexes will have to be generated from client. 
+For automatic index generation use *autoincrement* to a MySQL-like automatic counter or *guid* to assign random Guids to indexed fields.
+
+```javascript
+var options = {
+	unique : ['id'],
+	//autoincrement : ['id'],
+	//guid : ['id'],
+}
+db.create_table('table_name', columns, options);
 ```
 ######Inserting rows
 ```javascript
