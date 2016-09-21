@@ -4,6 +4,8 @@
 WyvernDB is an SQL inspired database that runs on client-side javascript. 
 The database engine stores it's values in localStorage at any change to keep a local and persistent copy of the database as well as the copy in memory.
 
+It is developed as an implementation of Android's SQLite for the web, specially for hybrid mobile apps that require persisten client storage.
+
 ##Usage:
 ######Including
 ```html
